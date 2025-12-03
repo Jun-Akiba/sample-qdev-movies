@@ -9,6 +9,49 @@
 <body>
     <div class="container">
         <h1>Free Movies This Month</h1>
+        
+        <!-- Ahoy! Search form for finding yer favorite movies -->
+        <div class="search-container">
+            <h2 class="search-title">🏴‍☠️ Search for Cinematic Treasures</h2>
+            <form class="search-form" th:action="@{/movies/search}" method="get">
+                <div class="search-fields">
+                    <div class="search-field">
+                        <label for="name">Movie Name:</label>
+                        <input type="text" id="name" name="name" 
+                               th:value="${searchName}" 
+                               placeholder="Enter movie name, matey...">
+                    </div>
+                    
+                    <div class="search-field">
+                        <label for="id">Movie ID:</label>
+                        <input type="number" id="id" name="id" 
+                               th:value="${searchId}" 
+                               placeholder="Enter movie ID..." min="1">
+                    </div>
+                    
+                    <div class="search-field">
+                        <label for="genre">Genre:</label>
+                        <select id="genre" name="genre">
+                            <option value="">All Genres</option>
+                            <option th:each="genreOption : ${genres}" 
+                                    th:value="${genreOption}" 
+                                    th:text="${genreOption}"
+                                    th:selected="${genreOption == searchGenre}">Genre</option>
+                        </select>
+                    </div>
+                    
+                    <div class="search-buttons">
+                        <button type="submit" class="search-btn">🔍 Search Treasures</button>
+                        <a th:href="@{/movies}" class="clear-btn">⚓ Show All Movies</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Display search results message -->
+        <div th:if="${message}" class="search-message" th:text="${message}"></div>
+        <div th:if="${error}" class="error-message" th:text="${error}"></div>
+        
         <div class="movies-grid">
             <div class="movie-card" th:each="movie : ${movies}">
                 <div class="movie-icon" th:text="${movie.icon}">🎬</div>
@@ -28,6 +71,13 @@
                 </div>
                 <a th:href="@{/movies/{id}/details(id=${movie.id})}" class="details-btn">View Details</a>
             </div>
+        </div>
+        
+        <!-- Show message when no movies found -->
+        <div th:if="${#lists.isEmpty(movies)}" class="no-results">
+            <div class="no-results-icon">🏴‍☠️</div>
+            <h3>Arrr! No treasures found, matey!</h3>
+            <p>Try adjusting yer search criteria or <a th:href="@{/movies}">view all movies</a>.</p>
         </div>
     </div>
 </body>

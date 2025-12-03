@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 
 @Service
 public class MovieService {
@@ -68,5 +69,60 @@ public class MovieService {
             return Optional.empty();
         }
         return Optional.ofNullable(movieMap.get(id));
+    }
+
+    /**
+     * Ahoy matey! This here method searches through our treasure chest of movies
+     * using various criteria like name, id, and genre. Perfect for finding that
+     * specific cinematic treasure ye be seekin'!
+     * 
+     * @param name Movie name to search for (partial matches allowed, case-insensitive)
+     * @param id Specific movie ID to find
+     * @param genre Genre to filter by (case-insensitive)
+     * @return List of movies matching the search criteria, or empty list if no matches found
+     */
+    public List<Movie> searchMovies(String name, Long id, String genre) {
+        logger.info("Arrr! Searching for movies with name: {}, id: {}, genre: {}", name, id, genre);
+        
+        List<Movie> results = new ArrayList<>(movies);
+        
+        // Filter by ID first (most specific search)
+        if (id != null && id > 0) {
+            Optional<Movie> movieById = getMovieById(id);
+            return movieById.map(List::of).orElse(new ArrayList<>());
+        }
+        
+        // Filter by movie name (partial match, case-insensitive)
+        if (name != null && !name.trim().isEmpty()) {
+            String searchName = name.trim().toLowerCase();
+            results = results.stream()
+                    .filter(movie -> movie.getMovieName().toLowerCase().contains(searchName))
+                    .collect(Collectors.toList());
+        }
+        
+        // Filter by genre (case-insensitive)
+        if (genre != null && !genre.trim().isEmpty()) {
+            String searchGenre = genre.trim().toLowerCase();
+            results = results.stream()
+                    .filter(movie -> movie.getGenre().toLowerCase().contains(searchGenre))
+                    .collect(Collectors.toList());
+        }
+        
+        logger.info("Search completed! Found {} movies matching the criteria", results.size());
+        return results;
+    }
+
+    /**
+     * Get all unique genres from our movie collection
+     * Useful for populating search dropdowns, savvy?
+     * 
+     * @return List of unique genres
+     */
+    public List<String> getAllGenres() {
+        return movies.stream()
+                .map(Movie::getGenre)
+                .distinct()
+                .sorted()
+                .collect(Collectors.toList());
     }
 }
